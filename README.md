@@ -1,11 +1,11 @@
+### Spedycja - about project
+Spedycja - compute the shortest route between cities and show the path.
+
 ## Table of contents
 * [About project](#spedycja---about-project)
 * [Get started](#get-started)
 * [Format of input and output files](#format-of-input-and-output-files)
 * [Inspiration](#inspiration)
-
-### Spedycja - about project
-Spedycja - compute the shortest route between cities and show the path.
 
 ## Get started
 - Clone project from github repository.
