@@ -1,4 +1,11 @@
-### Spedycja
+### Spedycja - about project
+
+## Table of contents
+* [About project](#spedycja--about-project)
+* [Technologies](#technologies)
+* [Setup](#setup)
+
+### Spedycja - about project
 Spedycja - compute the shortest route between cities and show the path.
 
 ## Get started
