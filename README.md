@@ -43,3 +43,7 @@ Poznań -> Bytom -> Wrocław: 480
 Poznań -> Łódź: 130
 
 ```
+
+## Inspiration
+- Dijkstra algrithm - https://pl.wikipedia.org/wiki/Algorytm_Dijkstry
+- Dijkstra implementation using STL containers - https://stackoverflow.com/questions/3447566/dijkstras-algorithm-in-c/3448361#3448361
