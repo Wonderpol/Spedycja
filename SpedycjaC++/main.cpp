@@ -41,12 +41,12 @@ struct Route {
 };
 
 void showInstruction();
-void checkIfStartIsDeclaredInTheFile(const map<string, vector<Route> > &routes, string start);
-void saveToFile(const string fileName, string path);
+void checkIfStartIsDeclaredInTheFile(const map<string, vector<Route> >& routes, const string& start);
+void saveToFile(const string& fileName, const string& path);
 void calculateRoute(vector<Route>& finished, multiset<Route>& working, map<string, vector<Route> >& routes, const string& start, const string& finish);
-bool isInFinished(const vector<Route>& finished, string nodeName);
-size_t getShortestRoute(const vector<Route> &finished, string finish);
-string getFinalPathWithDistance(vector<Route> &finished, string start, string finish);
+bool isInFinished(const vector<Route>& finished, const string& nodeName);
+size_t getShortestRoute(const vector<Route> &finished, const string& finish);
+string getFinalPathWithDistance(const vector<Route> &finished, const string& start, const string& finish);
 string argsFromCmd(int argc, const char * argv[], const char commutator[]);
 
 int main(int argc, const char * argv[]) {
@@ -173,7 +173,7 @@ string argsFromCmd(int argc, const char * argv[], const char commutator[]) {
  *@param routes wszystkie możliwe połaczenia
  *@param start miasto początkowe
  */
-void checkIfStartIsDeclaredInTheFile(const map<string, vector<Route> >& routes, string start) {
+void checkIfStartIsDeclaredInTheFile(const map<string, vector<Route> >& routes, const string& start) {
     try {
         routes.at(start);
     } catch (out_of_range&) {
@@ -189,7 +189,7 @@ void checkIfStartIsDeclaredInTheFile(const map<string, vector<Route> >& routes, 
  * @return funkcja zwraca wartość 'true' jeżeli podane miasto znajduje się już w wektorze
  */
 
-bool isInFinished(const vector<Route> &finished, const string nodeName) {
+bool isInFinished(const vector<Route> &finished, const string& nodeName) {
     bool isFound = false;
     
     for (auto route : finished) {
@@ -207,7 +207,7 @@ bool isInFinished(const vector<Route> &finished, const string nodeName) {
  * @param finish miasto docelowe
  */
 
-size_t getShortestRoute(const vector<Route>& finished, const string finish) {
+size_t getShortestRoute(const vector<Route>& finished, const string& finish) {
     
     size_t result = SIZE_MAX;
     size_t new_result;
@@ -238,7 +238,7 @@ Route returnRoute(const vector<Route>& finished, string destination)
     return buffRoute;
 }
 
-string getFinalPathWithDistance(vector<Route>& finished, string start, string finish) {
+string getFinalPathWithDistance(const vector<Route> &finished, const string& start, const string& finish) {
     
     size_t distance;
     string path;
@@ -275,7 +275,7 @@ string getFinalPathWithDistance(vector<Route>& finished, string start, string fi
     return path;
 }
 
-void saveToFile(const string fileName, const string path) {
+void saveToFile(const string& fileName, const string& path) {
     
     ofstream out;
     out.open(fileName, ios::app);
