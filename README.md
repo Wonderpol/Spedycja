@@ -11,7 +11,7 @@ Spedycja - compute the shortest route between cities and save the resoult to fil
 - Clone project from github repository.
 
 **Linux/mac users:**
-1. Compile it using for example g++ `g++ -o spedycja main.cpp`
+1. Compile it using )for example g++): `g++ -o spedycja main.cpp`
 2. Run with parameters -i input txt file -o output file -s start city: `./spedycja -i inputfile.txt -o outputfile.txt -s Poznań`.
 
 **Windows users:**
