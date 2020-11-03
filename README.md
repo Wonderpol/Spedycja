@@ -1,9 +1,7 @@
-### Spedycja - about project
-
 ## Table of contents
-* [About project](#spedycja--about-project)
-* [Technologies](#technologies)
-* [Setup](#setup)
+* [About project](#spedycja---about-project)
+* [Get started](#get-started)
+* [Format of input and output files](#format-of-input-and-output-files)
 
 ### Spedycja - about project
 Spedycja - compute the shortest route between cities and show the path.
