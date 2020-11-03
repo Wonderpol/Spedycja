@@ -68,7 +68,7 @@ int main(int argc, const char * argv[]) {
             showInstruction();
             exit(-1);
         }
-        
+        //TODO move it to function
         ifstream in(input);
         if (in.is_open()) {
             size_t distance;
@@ -97,8 +97,8 @@ int main(int argc, const char * argv[]) {
             showInstruction();
             exit(-1);
         }
-        
-        //Do debugowania
+        //TODO delete it before final version
+        //For debugging
         //finish = argv[7];
         checkIfStartIsDeclaredInTheFile(routes, start);
         
@@ -121,7 +121,7 @@ int main(int argc, const char * argv[]) {
     return 0;
 }
 void showInstruction() {
-    
+    //TODO check if it works on windows command line
     cerr <<"\033[1;31mAby skorzystać z programu należy podać paramatery startowe(kolejność nie ma znaczenia):\033[0m" << endl;
     cerr <<"\033[1;32m -i <nazwa pliku wejścia> -o <nazwa pliku wyjścia> -s <nazwa bazy>\033[0m" << endl;
     }
@@ -162,6 +162,7 @@ string argsFromCmd(int argc, const char * argv[], const char commutator[]) {
         }
     }
     if (error) {
+        //TODO check if it works on windows command line
         throw "\033[1;31mZapoznaj się z instrukcją obsługi programu: \033[0m";
     }
     return arg;
