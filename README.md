@@ -1,5 +1,5 @@
 ### Spedycja - about project
-Spedycja - compute the shortest route between cities and show the path.
+Spedycja - compute the shortest route between cities and save the resoult to file.
 
 ## Table of contents
 * [About project](#spedycja---about-project)
