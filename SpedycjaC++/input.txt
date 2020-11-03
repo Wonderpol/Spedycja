@@ -1,0 +1,7 @@
+Szczecin Poznań 220
+Szczecin Koszalin 110
+Poznań Bytom 300
+Poznań Łódź 130
+Łódź Katowice 170
+Bytom Katowice 15
+Bytom Wrocław 180
