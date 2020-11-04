@@ -54,14 +54,13 @@ bool isLineValid(const string& start, const string& finish, const size_t& distan
 int main(int argc, const char * argv[]) {
     
     
-    if (!((argc == 7) || argc == 1)) {
-        cout << "Złe parametry rozruchowe spróbuj ponownie: " << endl << endl;
+    if (!(argc == 7)) {
         showInstruction();
     } else {
         
         map<string, vector<Route> > routes;
         string start, finish, input, output;
-                                
+        
         try {
             input = argsFromCmd(argc, argv, "-i");
         } catch (const char* error) {
@@ -70,10 +69,10 @@ int main(int argc, const char * argv[]) {
             exit(-1);
         }
         
-
+        
         try {
             readDataFromFile(input, start, finish, routes);
-
+            
         } catch (const char* error) {
             cout << error << input << endl;
             exit(-1);
@@ -115,36 +114,36 @@ void showInstruction() {
     //TODO: check if it works on windows command line
     cerr <<"\033[1;31mAby skorzystać z programu należy podać paramatery startowe(kolejność nie ma znaczenia):\033[0m" << endl;
     cerr <<"\033[1;32m -i <nazwa pliku wejścia> -o <nazwa pliku wyjścia> -s <nazwa bazy>\033[0m" << endl;
-    }
+}
 
 void readDataFromFile(const string& inputPath, string& start, string& finish,  map<string, vector<Route> >& routes) {
     
     //TODO move it to function
-         ifstream in(inputPath);
-         if (in.is_open()) {
-             stringstream ss;
-            string line;
-             size_t distance;
-             while (getline(in, line)) {
-                 ss.clear();
-                 ss.str("");
-                 start.clear();
-                 finish.clear();
-                 distance = 0;
-                 ss << line;
-                 ss >> start >> finish >> distance;
-                 if (isLineValid(start, finish, distance)) {
-                       routes[start].push_back(*(new Route(finish, distance)));
-                     routes[finish].push_back(*(new Route(start, distance)));
-                 } else {
-                     cout << "Nie prawidłowo wprowadzone dane" << endl;
-                     exit(-1);
-                 }
-             }
-         } else {
-             throw "Sprawdź czy plik o podanej nazwie instnieje: ";
-         }
-         in.close();
+    ifstream in(inputPath);
+    if (in.is_open()) {
+        stringstream ss;
+        string line;
+        size_t distance;
+        while (getline(in, line)) {
+            ss.clear();
+            ss.str("");
+            start.clear();
+            finish.clear();
+            distance = 0;
+            ss << line;
+            ss >> start >> finish >> distance;
+            if (isLineValid(start, finish, distance)) {
+                routes[start].push_back(*(new Route(finish, distance)));
+                routes[finish].push_back(*(new Route(start, distance)));
+            } else {
+                cout << "Nie prawidłowo wprowadzone dane" << endl;
+                exit(-1);
+            }
+        }
+    } else {
+        throw "Sprawdź czy plik o podanej nazwie instnieje: ";
+    }
+    in.close();
 }
 
 void calculateRoute(vector<Route>& finished, multiset<Route>& working, map<string, vector<Route> >& routes, const string& start, const string& finish) {
