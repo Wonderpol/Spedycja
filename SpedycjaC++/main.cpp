@@ -42,12 +42,12 @@ struct Route {
 
 void showInstruction();
 void checkIfStartIsDeclaredInTheFile(const map<string, vector<Route> >& routes, const string& start);
-void saveToFile(const string& fileName, const string& path);
+void saveToFile(const string& fileName, const vector<string>& finalPat);
 void readDataFromFile(const string& inputPath, string& start, string& finish,  map<string, vector<Route> >& routes);
 void calculateRoute(vector<Route>& finished, multiset<Route>& working, map<string, vector<Route> >& routes, const string& start, const string& finish);
 bool isInFinished(const vector<Route>& finished, const string& nodeName);
 size_t getShortestRoute(const vector<Route> &finished, const string& finish);
-string getFinalPathWithDistance(const vector<Route> &finished, const string& start, const string& finish);
+void getFinalPathWithDistance(const vector<Route> &finished, const string& start, const string& finish, vector<string>& finalPath);
 string argsFromCmd(int argc, const char * argv[], const char operant[]);
 bool isLineValid(const string& start, const string& finish, const size_t& distance);
 
@@ -59,6 +59,7 @@ int main(int argc, const char * argv[]) {
     } else {
         
         map<string, vector<Route> > routes;
+        vector<string> finalPath;
         string start, finish, input, output;
         
         try {
@@ -100,25 +101,26 @@ int main(int argc, const char * argv[]) {
             
             calculateRoute(finished, working, routes, start, finish);
             
-            cout << getFinalPathWithDistance(finished, start, finish) << endl;
-            
-            saveToFile(output, getFinalPathWithDistance(finished, start, finish));
+            getFinalPathWithDistance(finished, start, finish, finalPath);
             
         }
+        try {
+            saveToFile(output, finalPath);
+        } catch (const char* error) {
+            cerr << error << endl;
+        }
     }
-    
     return 0;
 }
 
 void showInstruction() {
     //TODO: check if it works on windows command line
-    cerr <<"\033[1;31mAby skorzystać z programu należy podać paramatery startowe(kolejność nie ma znaczenia):\033[0m" << endl;
-    cerr <<"\033[1;32m -i <nazwa pliku wejścia> -o <nazwa pliku wyjścia> -s <nazwa bazy>\033[0m" << endl;
+    cerr <<"Aby skorzystać z programu należy podać paramatery startowe(kolejność nie ma znaczenia): " << endl;
+    cerr <<"-i <nazwa pliku wejścia> -o <nazwa pliku wyjścia> -s <nazwa bazy>" << endl;
 }
 
 void readDataFromFile(const string& inputPath, string& start, string& finish,  map<string, vector<Route> >& routes) {
     
-    //TODO move it to function
     ifstream in(inputPath);
     if (in.is_open()) {
         stringstream ss;
@@ -136,8 +138,7 @@ void readDataFromFile(const string& inputPath, string& start, string& finish,  m
                 routes[start].push_back(*(new Route(finish, distance)));
                 routes[finish].push_back(*(new Route(start, distance)));
             } else {
-                cout << "Nie prawidłowo wprowadzone dane" << endl;
-                exit(-1);
+                throw "Nie prawidłowo wprowadzone dane";
             }
         }
     } else {
@@ -182,8 +183,7 @@ string argsFromCmd(int argc, const char * argv[], const char operant[]) {
         }
     }
     if (error) {
-        //TODO: check if it works in windows command line
-        throw "\033[1;31mZapoznaj się z instrukcją obsługi programu: \033[0m";
+        throw "Zapoznaj się z instrukcją obsługi programu: ";
     }
     return arg;
 }
@@ -250,7 +250,7 @@ size_t getShortestRoute(const vector<Route>& finished, const string& finish) {
     if (!(result == SIZE_MAX || result == 0)) {
         return result;
     } else {
-        throw "Brak połączenia do miasta: ";
+        throw "Brak połączenia do miasta(ta informacja nie jest zapisywana do pliku): ";
     }
 }
 
@@ -266,7 +266,7 @@ Route returnRoute(const vector<Route>& finished, string destination)
     return buffRoute;
 }
 
-string getFinalPathWithDistance(const vector<Route> &finished, const string& start, const string& finish) {
+void getFinalPathWithDistance(const vector<Route> &finished, const string& start, const string& finish, vector<string>& finalPath) {
     
     size_t distance;
     string path;
@@ -294,21 +294,26 @@ string getFinalPathWithDistance(const vector<Route> &finished, const string& sta
         }
         
         path.append(to_string(distance));
+        finalPath.push_back(path);
+        
         
     } catch (const char* error) {
-        path = error;
-        path += finish;
+        cerr << error << finish << endl;
     }
-    
-    return path;
 }
 
-//TODO: change the way how i save data to file and clear file before saving.
-void saveToFile(const string& fileName, const string& path) {
+void saveToFile(const string& fileName, const vector<string>& finalPath) {
     
     ofstream out;
-    out.open(fileName, ios::app);
-    out << path << endl;
+    out.open(fileName, ios::out);
+    string toSave;
+    if (out.is_open()) {
+        for (auto path : finalPath) {
+            out << path << endl;
+        }
+    } else {
+        throw "Prwdopodobnie brak uprawnien do otwierania plików";
+    }
     out.close();
 }
 
