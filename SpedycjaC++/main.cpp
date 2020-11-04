@@ -14,6 +14,7 @@
 #include <sstream>
 #include <fstream>
 #include <limits.h>
+#include <typeinfo>
 
 using namespace std;
 
@@ -49,7 +50,7 @@ bool isInFinished(const vector<Route>& finished, const string& nodeName);
 size_t getShortestRoute(const vector<Route> &finished, const string& finish);
 void getFinalPathWithDistance(const vector<Route> &finished, const string& start, const string& finish, vector<string>& finalPath);
 string argsFromCmd(int argc, const char * argv[], const char operant[]);
-bool isLineValid(const string& start, const string& finish, const size_t& distance);
+bool isLineValid(const string& start, const string& finish, const size_t& distance, const int& lineNUmber);
 
 int main(int argc, const char * argv[]) {
     
@@ -74,8 +75,11 @@ int main(int argc, const char * argv[]) {
         try {
             readDataFromFile(input, start, finish, routes);
             
-        } catch (const char* error) {
-            cout << error << input << endl;
+        } catch (const int inputLine) {
+            cerr << "Nieprawidłowe dane w linijce: " << inputLine << endl;
+            exit(-1);
+        } catch (const char* fileDoesNotExists) {
+            cout << fileDoesNotExists << input << endl;
             exit(-1);
         }
         
@@ -126,7 +130,9 @@ void readDataFromFile(const string& inputPath, string& start, string& finish,  m
         stringstream ss;
         string line;
         size_t distance;
+        int lineNumber = 0;
         while (getline(in, line)) {
+            lineNumber++;
             ss.clear();
             ss.str("");
             start.clear();
@@ -134,11 +140,12 @@ void readDataFromFile(const string& inputPath, string& start, string& finish,  m
             distance = 0;
             ss << line;
             ss >> start >> finish >> distance;
-            if (isLineValid(start, finish, distance)) {
+            if (isLineValid(start, finish, distance, lineNumber)) {
                 routes[start].push_back(*(new Route(finish, distance)));
                 routes[finish].push_back(*(new Route(start, distance)));
             } else {
-                throw "Nie prawidłowo wprowadzone dane";
+                //Throw the num of non valid line
+                throw lineNumber;
             }
         }
     } else {
@@ -188,7 +195,7 @@ string argsFromCmd(int argc, const char * argv[], const char operant[]) {
     return arg;
 }
 
-bool isLineValid(const string& start, const string& finish, const size_t& distance) {
+bool isLineValid(const string& start, const string& finish, const size_t& distance, const int& lineNUmber) {
     bool isValid = true;
     if (start.empty() || finish.empty() || distance == 0) {
         isValid = false;
