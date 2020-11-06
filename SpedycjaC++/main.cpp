@@ -74,7 +74,6 @@ int main(int argc, const char * argv[]) {
         
         try {
             readDataFromFile(input, start, finish, routes);
-            
         } catch (const int inputLine) {
             cerr << "Nieprawidłowe dane w linijce: " << inputLine << endl;
             exit(-1);
@@ -144,7 +143,7 @@ void readDataFromFile(const string& inputPath, string& start, string& finish,  m
                 routes[start].push_back(*(new Route(finish, distance)));
                 routes[finish].push_back(*(new Route(start, distance)));
             } else {
-                //Throw the num of non valid line
+                //Throws the num of non valid line
                 throw lineNumber;
             }
         }
