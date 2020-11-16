@@ -13,44 +13,17 @@
 #include <string>
 #include <sstream>
 #include <fstream>
-#include <limits.h>
-#include <typeinfo>
+#include "dijkstra.hpp"
 
 using namespace std;
-
-struct Route {
-    string destination;
-    string ancestor;
-    size_t distance;
-    
-    Route(string destination, size_t distance) {
-        this->distance = distance;
-        this->destination = destination;
-    }
-    
-    Route(string destination, string ancestor, size_t distance) {
-        this->distance = distance;
-        this->destination = destination;
-        this->ancestor = ancestor;
-    }
-    
-    Route(){}
-    
-    bool operator < (const Route &r) const {
-        return (distance < r.distance);
-    }
-};
 
 void showInstruction();
 void checkIfStartIsDeclaredInTheFile(const map<string, vector<Route> >& routes, const string& start);
 void saveToFile(const string& fileName, const vector<string>& finalPat);
 void readDataFromFile(const string& inputPath, string& start, string& finish,  map<string, vector<Route> >& routes);
-void calculateRoute(vector<Route>& finished, multiset<Route>& working, map<string, vector<Route> >& routes, const string& start, const string& finish);
-bool isInFinished(const vector<Route>& finished, const string& nodeName);
 size_t getShortestRoute(const vector<Route> &finished, const string& finish);
-void getFinalPathWithDistance(const vector<Route> &finished, const string& start, const string& finish, vector<string>& finalPath);
 string argsFromCmd(int argc, const char * argv[], const char operant[]);
-bool isLineValid(const string& start, const string& finish, const size_t& distance, const int& lineNUmber);
+bool isLineValid(const string& start, const string& finish, const size_t& distance);
 
 int main(int argc, const char * argv[]) {
     
@@ -65,24 +38,6 @@ int main(int argc, const char * argv[]) {
         
         try {
             input = argsFromCmd(argc, argv, "-i");
-        } catch (const char* error) {
-            cerr << error << endl << endl;
-            showInstruction();
-            exit(-1);
-        }
-        
-        
-        try {
-            readDataFromFile(input, start, finish, routes);
-        } catch (const int inputLine) {
-            cerr << "Nieprawidłowe dane w linijce: " << inputLine << endl;
-            exit(-1);
-        } catch (const char* fileDoesNotExists) {
-            cout << fileDoesNotExists << input << endl;
-            exit(-1);
-        }
-        
-        try {
             start = argsFromCmd(argc, argv, "-s");
             output = argsFromCmd(argc, argv, "-o");
         } catch (const char* error) {
@@ -90,6 +45,14 @@ int main(int argc, const char * argv[]) {
             showInstruction();
             exit(-1);
         }
+        
+        try {
+            readDataFromFile(input, start, finish, routes);
+        } catch (const int inputLine) {
+            cerr << "[error] Nieprawidłowe dane w linijce: " << inputLine << endl;
+            exit(-1);
+        }
+        
         //TODO: delete it before final version
         //For debugging
         //finish = argv[7];
@@ -110,7 +73,7 @@ int main(int argc, const char * argv[]) {
         try {
             saveToFile(output, finalPath);
         } catch (const char* error) {
-            cerr << error << endl;
+            cerr << "[error] Problem z utworzniem pliku: " << error << endl;
         }
     }
     return 0;
@@ -118,8 +81,8 @@ int main(int argc, const char * argv[]) {
 
 void showInstruction() {
     //TODO: check if it works on windows command line
-    cerr <<"Aby skorzystać z programu należy podać paramatery startowe(kolejność nie ma znaczenia): " << endl;
-    cerr <<"-i <nazwa pliku wejścia> -o <nazwa pliku wyjścia> -s <nazwa bazy>" << endl;
+    cerr <<"[info] Aby skorzystać z programu należy podać paramatery startowe(kolejność nie ma znaczenia): " << endl;
+    cerr <<"[info] -i <nazwa pliku wejścia> -o <nazwa pliku wyjścia> -s <nazwa bazy>" << endl;
 }
 
 void readDataFromFile(const string& inputPath, string& start, string& finish,  map<string, vector<Route> >& routes) {
@@ -139,7 +102,7 @@ void readDataFromFile(const string& inputPath, string& start, string& finish,  m
             distance = 0;
             ss << line;
             ss >> start >> finish >> distance;
-            if (isLineValid(start, finish, distance, lineNumber)) {
+            if (isLineValid(start, finish, distance)) {
                 routes[start].push_back(*(new Route(finish, distance)));
                 routes[finish].push_back(*(new Route(start, distance)));
             } else {
@@ -148,37 +111,17 @@ void readDataFromFile(const string& inputPath, string& start, string& finish,  m
             }
         }
     } else {
-        throw "Sprawdź czy plik o podanej nazwie instnieje: ";
+        cerr << "[error] Sprawdź czy plik o podanej nazwie instnieje: " << inputPath << endl;
+        exit(-1);
     }
     in.close();
 }
 
-void calculateRoute(vector<Route>& finished, multiset<Route>& working, map<string, vector<Route> >& routes, const string& start, const string& finish) {
-    
-    working.insert(*(new Route(start, 0)));
-    
-    for (auto workRoute : working) {
-        
-        if (workRoute.destination == finish) {
-            finished.push_back(workRoute);
-        }
-        
-        if (isInFinished(finished, workRoute.destination))
-            continue;
-        
-        finished.push_back(workRoute);
-        
-        for (auto route : routes[workRoute.destination]) {
-            string destination = route.destination;
-            
-            if (!(isInFinished(finished, destination))) {
-                size_t distanceCost = route.distance + workRoute.distance;
-                working.insert(*(new Route(destination, workRoute.destination, distanceCost)));
-            }
-        }
-    }
-}
-
+/**
+ *Funkcja pobierająca parametry startowe programu
+ *@param operant przełącznik którego szukamy
+ *@returns arg zwraca wartość następnego argumentu po przełączniku którego poszukujemy
+ */
 string argsFromCmd(int argc, const char * argv[], const char operant[]) {
     string arg;
     bool error = true;
@@ -189,14 +132,20 @@ string argsFromCmd(int argc, const char * argv[], const char operant[]) {
         }
     }
     if (error) {
-        throw "Zapoznaj się z instrukcją obsługi programu: ";
+        throw "[error] Zapoznaj się z instrukcją obsługi programu: ";
     }
     return arg;
 }
 
-bool isLineValid(const string& start, const string& finish, const size_t& distance, const int& lineNUmber) {
+/**
+ *Funkcja waliduje dane wporwadzone w pliku wejściiwym
+ *@param start miasto początkowe
+ *@param finish miasto docelowe
+ *@param distance dystans pomiędzy dwoma miastami
+ */
+bool isLineValid(const string& start, const string& finish, const size_t& distance) {
     bool isValid = true;
-    if (start.empty() || finish.empty() || distance == 0) {
+    if (start.empty() || finish.empty() || distance == 0 || distance == SIZE_MAX) {
         isValid = false;
     }
     return isValid;
@@ -211,114 +160,27 @@ void checkIfStartIsDeclaredInTheFile(const map<string, vector<Route> >& routes, 
     try {
         routes.at(start);
     } catch (out_of_range&) {
-        cout <<  "Brak miasta o nazwie: " << start << endl;
+        cout <<  "[error] Brak miasta o nazwie: " << start << endl;
         exit(-1);
     }
 }
 
 /**
- * Funkcja sprawdza czy lokalizacja jest dodana do vectora wktórym znajdują się już obliczone odległości ale nie koniecznie najkrótsze
- * @param nodeName przechowywuje nazwę wierzchołka - wierzchołek to miasto
- * @param finished przechowywuje wszystkie do danego miasta(nie tylko najkrótsze)
- * @return funkcja zwraca wartość 'true' jeżeli podane miasto znajduje się już w wektorze
+ *Funkcja zapisuje wyznaczone ścieżki do plikui
+ *@param fileName ściażka pliku do zapisu
+ *@param finalPath kontener zawiecający utworzone ścieżki
  */
-
-bool isInFinished(const vector<Route> &finished, const string& nodeName) {
-    bool isFound = false;
-    
-    for (auto route : finished) {
-        if (route.destination == nodeName) {
-            isFound = true;
-            break;
-        }
-    }
-    return isFound;
-}
-
-/**
- * Funkcja znajduje i zwraca najkrótszą odległość od miasta pocątkowego do końcowego
- * @param finished przechowywuje wszystkie do danego miasta (nie tylko najkrótsze)
- * @param finish miasto docelowe
- */
-
-size_t getShortestRoute(const vector<Route>& finished, const string& finish) {
-    
-    size_t result = SIZE_MAX;
-    size_t new_result;
-    
-    for (auto route : finished) {
-        if (route.destination == finish) {
-            new_result = route.distance;
-            if (new_result < result)result = new_result;
-        }
-    }
-    
-    if (!(result == SIZE_MAX || result == 0)) {
-        return result;
-    } else {
-        throw "Brak połączenia do miasta(ta informacja nie jest zapisywana do pliku): ";
-    }
-}
-
-Route returnRoute(const vector<Route>& finished, string destination)
-{
-    Route buffRoute = *new Route();
-    
-    for (auto route : finished) {
-        if (route.destination == destination) {
-            buffRoute = route;
-        }
-    }
-    return buffRoute;
-}
-
-void getFinalPathWithDistance(const vector<Route> &finished, const string& start, const string& finish, vector<string>& finalPath) {
-    
-    size_t distance;
-    string path;
-    string ancestor;
-    vector<string> vPath;
-    
-    try {
-        distance = getShortestRoute(finished, finish);
-        
-        vPath.push_back(finish);
-        
-        for (auto route : finished) {
-            if (route.destination == finish && route.distance == distance) ancestor = route.ancestor;
-        }
-        
-        while (ancestor != "") {
-            Route buffor = returnRoute(finished, ancestor);
-            vPath.push_back(buffor.destination);
-            ancestor = buffor.ancestor;
-        }
-        
-        for (int i = vPath.size() - 1.00; i > -1; i--) {
-            path += vPath[i];
-            if (vPath[i] != finish)path.append(" -> "); else path.append(": ");
-        }
-        
-        path.append(to_string(distance));
-        finalPath.push_back(path);
-        
-        
-    } catch (const char* error) {
-        cerr << error << finish << endl;
-    }
-}
-
 void saveToFile(const string& fileName, const vector<string>& finalPath) {
     
     ofstream out;
     out.open(fileName, ios::out);
-    string toSave;
     if (out.is_open()) {
         for (auto path : finalPath) {
             out << path << endl;
         }
+        cout << "[sucess] Zapisano do pliku: " << fileName << endl;
     } else {
-        throw "Prwdopodobnie brak uprawnien do otwierania plików";
+        throw fileName;
     }
     out.close();
 }
