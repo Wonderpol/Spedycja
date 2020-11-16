@@ -15,7 +15,29 @@
 #include <vector>
 #include <map>
 #include <set>
-#include "route.hpp"
+
+struct Route {
+    std::string destination;
+    std::string ancestor;
+    size_t distance;
+    
+    Route(std::string destination, size_t distance) {
+        this->distance = distance;
+        this->destination = destination;
+    }
+    
+    Route(std::string destination, std::string ancestor, size_t distance) {
+        this->distance = distance;
+        this->destination = destination;
+        this->ancestor = ancestor;
+    }
+    
+    Route(){}
+    
+    bool operator < (const Route &r) const {
+        return (distance < r.distance);
+    }
+};
 
 Route returnRoute(const std::vector<Route>& finished, std::string destination) {
     Route buffRoute = *new Route();
